@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
-import Board from './components/Board';
-import { observe } from './Game';
+import App from './App';
+import { observe } from './game/Game';
 
 import reportWebVitals from './reportWebVitals';
 
@@ -8,8 +8,8 @@ const container = document.getElementById('root');
 
 const root = createRoot(container!);
 
-observe((knightPosition: any) =>  {
-  root.render(<Board knightPosition={knightPosition} />)
+observe((game: any) =>  {
+  root.render(<App />)
   }
 )
 
