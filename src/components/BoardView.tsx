@@ -85,10 +85,11 @@ export default function BoardView({ game }: any) {
     }
 
     if (playerPerspective === 'white') {
-      rows.forEach(row => {
-        row.reverse();
-      })
       rows.reverse();
+    } else {
+      rows = rows.map(row => {
+        return row.reverse();
+      })
     }
 
     return rows;
