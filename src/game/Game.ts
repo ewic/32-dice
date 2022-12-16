@@ -32,7 +32,7 @@ export default class Game {
             let py = i % 8;
             
             let isBlack = false;
-            if (i < 8) isBlack = true;
+            if (i < 16) isBlack = true;
             
             let newPiece = new Piece(isBlack, value, [px, py]);
 
@@ -49,10 +49,6 @@ export default class Game {
         return this.gameState;
     }
 
-    selectPiece(piece: Piece) {
-        this.selectedPiece = piece;
-        return piece;
-    }
 }
 
 function emitChange() {

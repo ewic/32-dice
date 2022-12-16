@@ -1,10 +1,10 @@
 export default class Piece {
-    isBlack: boolean;
+    isPlayer2: boolean;
     value: number;
     position: Array<number>;
 
-    constructor(isBlack:boolean, value: number, position: Array<number>) {
-        this.isBlack = isBlack;
+    constructor(isPlayer2:boolean, value: number, position: Array<number>) {
+        this.isPlayer2 = isPlayer2;
         this.value = value; 
         this.position = position;
     }
@@ -28,13 +28,17 @@ export default class Piece {
         return this.value;
     }
 
-    getColor() {
-        if (this.isBlack) return `black`;
-        else return `white`
+    getPlayer() {
+        if (this.isPlayer2) return 2;
+        else return 1
     }
 
     getPosition() {
         return this.position;    
+    }
+
+    setPosition(toX: number, toY: number) {
+        this.position = [toX, toY];
     }
 
     getRow() {

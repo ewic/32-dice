@@ -5,6 +5,18 @@
   }
 
 .square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 12.5%;
   width: 12.5%;
+}
+
+.piece {
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid black;
+  border-radius: 8px;
 }

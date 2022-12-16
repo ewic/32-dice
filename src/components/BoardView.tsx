@@ -4,15 +4,41 @@ import Piece from '../game/Piece';
 import styles from "./styles.module.css";
 
 export default function BoardView({ game }: any) {
-  const [playerPerspective, setPlayerPerspective] = useState('white');
+  const [playerPerspective, setPlayerPerspective] = useState<Number>(1);
   const [size, setSize] = useState(600);
+  const [activePlayer, setActivePlayer] = useState<Number>(1);
+  const [selectedPiece, setSelectedPiece] = useState<Piece>();
+  const [capturedPieces, setCapturedPieces] = useState<Array<Piece>>([]);
+
+  const changeTurn = () => {
+    if (activePlayer === 1) setActivePlayer(2)
+    else setActivePlayer(1);
+    setSelectedPiece(undefined);
+  }
 
   const handleClick = (row: number, col: number, piece?: Piece) => {
-    console.group("Click event!");
-    console.log(getCoordinate(row, col));
-    if (piece) console.log("Piece is present")
-    else console.log("Piece is not present");
-    console.groupEnd();
+    console.log("Click: " + getCoordinate(row, col));
+
+    // If a piece is in the selected square
+    if (piece) {
+      // console.log("Piece is present!")
+      if (selectedPiece === undefined) {
+        // console.log("No current selected piece");
+        if (piece.getPlayer() === activePlayer) {
+          // console.log("piece player is active player")
+          setSelectedPiece(piece);
+        } 
+      }
+    } else {
+      // TODO: if this square is a legal move for the selectedPiece to move to, then do the move.
+      if (selectedPiece != null) {
+        selectedPiece.setPosition(row, col);
+        changeTurn();
+      } else {
+        setSelectedPiece(undefined);
+      }
+    }
+
   }
 
   // Game logic
@@ -41,17 +67,21 @@ export default function BoardView({ game }: any) {
   }
 
   const flipBoard = () => {
-    if ( playerPerspective === 'white') setPlayerPerspective('black')
-    else setPlayerPerspective('white');
+    if ( playerPerspective === 1) setPlayerPerspective(2)
+    else setPlayerPerspective(1);
   }
 
   // Rendering Functions
 
   const renderSquare = (x: number, y: number, piece?: Piece) => {
-    let dark = (x + y) % 2 === 0;
-  
-    const fill = dark ? 'white' : 'black'
-    const stroke = dark ? 'black' : 'white'
+    let light = (x + y) % 2 === 0;
+
+    let fill = light ? 'lavender' : 'mediumPurple'
+    const stroke = light ? 'thistle' : 'lavender'
+    
+    if (piece === selectedPiece && selectedPiece !== undefined) {
+      fill = 'linen';
+    }
   
     return (
       <div
@@ -63,9 +93,20 @@ export default function BoardView({ game }: any) {
           color: stroke,
         }}
       >
-        <div className="piece">
-          <span>{piece != null ? piece.getValue() : null}</span>
-        </div>
+        {piece != null && 
+          <div 
+            className={styles.piece}
+            style={{
+              width: "30px",
+              height: "30px",
+              backgroundColor: piece.getPlayer() === 1 ? 'white' : 'black',
+              color: piece.getPlayer() === 1 ? 'black' : 'white',
+              border: "2px solid " + piece.getPlayer()
+            }}
+          >
+            {piece.getValue()}
+          </div>
+        }
       </div>
     )
   }
@@ -84,7 +125,7 @@ export default function BoardView({ game }: any) {
       rows.push(boardRow);
     }
 
-    if (playerPerspective === 'white') {
+    if (playerPerspective === 2) {
       rows.reverse();
     } else {
       rows = rows.map(row => {
@@ -102,7 +143,7 @@ export default function BoardView({ game }: any) {
         <button onClick={() => resetSize()}>&#8634;</button>
         <button onClick={() => decreaseSize()}>-</button>
         <br />
-        <span>Perspective: {playerPerspective}</span>
+        <span>Perspective: Player {String(playerPerspective)}</span>
         <button onClick={() => flipBoard()}>Flip</button>
       </div>
       <div className={styles.board}
