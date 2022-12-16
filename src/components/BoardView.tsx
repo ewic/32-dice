@@ -50,8 +50,8 @@ export default function BoardView({ game }: any) {
   const renderSquare = (x: number, y: number, piece?: Piece) => {
     let dark = (x + y) % 2 === 0;
   
-    const fill = dark ? 'black' : 'white'
-    const stroke = dark ? 'white' : 'black'
+    const fill = dark ? 'white' : 'black'
+    const stroke = dark ? 'black' : 'white'
   
     return (
       <div
@@ -70,54 +70,25 @@ export default function BoardView({ game }: any) {
     )
   }
 
-  const renderCoordinateSquare = (contents?: string) => {
-    return(
-      <div 
-        key={"coordinate-"+contents}
-        className={styles.coordinate_square}
-      >
-        <span>{contents}</span>
-      </div>
-    )
-  }
-
   const renderBoard = () => {
     // let rows = boardState;
     let rows = [];
 
-    // Attach the first row, which is just coordinates
-    let coordinateRow = [];
-    // Push an empty square for the first coordinate column.
-    coordinateRow.push(renderCoordinateSquare());
-    // 
-    for (let col = 0; col < 8; col++) {
-      coordinateRow.push(renderCoordinateSquare(intToAlpha(col)))
-    }
-    // Push another empty square for the last coordinate column.
-    coordinateRow.push(renderCoordinateSquare());
-
-    // Push the first row, which is a coordinate row.
-    rows.push(coordinateRow);
     // Render all the squares
     for (let row = 0; row < 8; row++) {
       let boardRow = [];
-      boardRow.push(renderCoordinateSquare(String(row+1)));
       for (let col = 0; col < 8; col++) {
         let piece = isPiecePresent(row, col);
-  
         boardRow.push(renderSquare(row, col, piece));
       }
-      boardRow.push(renderCoordinateSquare(String(row+1)));
       rows.push(boardRow);
     }
-    // Push the last coordinate row.
-    rows.push(coordinateRow);
 
     if (playerPerspective === 'white') {
-      rows.reverse();
       rows.forEach(row => {
         row.reverse();
       })
+      rows.reverse();
     }
 
     return rows;
