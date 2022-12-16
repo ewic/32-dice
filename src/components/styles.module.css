@@ -1,0 +1,16 @@
+.board {
+    display: flex;
+    flex-wrap: wrap;
+    border: 2px solid black;
+  }
+
+.square {
+  height: 10%;
+  width: 10%;
+}
+
+.coordinate_square {
+  background-color: #eee;
+  height: 10%;
+  width: 10%;
+}

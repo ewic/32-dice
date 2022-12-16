@@ -6,6 +6,7 @@ let observer: any = null;
 export default class Game {
     gameBoard: Board = new Board();
     gameState: Array<Piece> = [];
+    selectedPiece?: Piece;
     
     constructor() {
         this.createNewGame();
@@ -46,6 +47,11 @@ export default class Game {
 
     getGameState() {
         return this.gameState;
+    }
+
+    selectPiece(piece: Piece) {
+        this.selectedPiece = piece;
+        return piece;
     }
 }
 

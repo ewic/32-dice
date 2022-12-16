@@ -1,46 +1,39 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 32Dice
 
-## Available Scripts
+Based on the game 32Dice originally published by [https://www.universitygames.com](University Games).
 
-In the project directory, you can run:
+# Rules
 
-### `npm start`
+## Game Setup
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Each player rolls a series of 16 dice. Place the dice in the order they were rolled on the board on each player's side.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Gameplay
 
-### `npm test`
+Players take turns either moving one of their die or flipping one of their die to change its value.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* Each die can move in any of the 8 directions.
+* A die must move the exact number of spaces equal to its value.
+* If a die is flipped, it can only be flipped to an adjacent side, not the opposite side.
+* For example, a die that is showing a value of 1 can not be flipped to 6, because that would be on the opposite side.
 
-### `npm run build`
+## Winning the game
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+A checkmate occurs when a player is able to move any one of their pieces to the back rank of their opponent's side of the board without it being able to be immediately captured on the next turn.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Development notes
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+I'm producing this app somewhat ad-hoc without much pre-planning, mostly as an excercise in React and SPA.
 
-### `npm run eject`
+# Starting the app
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+This app was created with Create React App, with the Typescript template. The standard command to kick off the app is `npm start`. Don't forget to do an `npm i` first.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Todo list
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+* Draw a piece on the board and style it to look nice.
+* Provide an interface to change the value of the piece.
+* Click on a piece to select it.
+* Highlight legal moves when a piece is selected
+* Detect for checkmate.

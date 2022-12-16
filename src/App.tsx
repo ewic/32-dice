@@ -1,5 +1,5 @@
 import Game from "./game/Game";
-import GameView from "./components/GameView";
+import BoardView from "./components/BoardView";
 
 const createNewGame = () => {
     const newGame = new Game();
@@ -12,7 +12,7 @@ export default function App() {
 
     return (
         <div>
-            <GameView game={game} />
+            <BoardView game={game} />
         </div>
 
     );
