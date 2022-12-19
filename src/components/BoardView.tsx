@@ -13,44 +13,51 @@ export default function BoardView({ game }: any) {
   const changeTurn = () => {
     if (activePlayer === 1) setActivePlayer(2)
     else setActivePlayer(1);
+    game.setSelectedPiece(undefined);
     setSelectedPiece(undefined);
   }
 
-  const handleClick = (row: number, col: number, piece?: Piece) => {
-    console.log("Click: " + getCoordinate(row, col));
+  const isLegalMove = (rank: number, file: number) => {
+    const square = [rank, file]
+    const legalMoves = game.getLegalMoves();
 
-    // If a piece is in the selected square
-    if (piece) {
-      // console.log("Piece is present!")
-      if (selectedPiece === undefined) {
-        // console.log("No current selected piece");
-        if (piece.getPlayer() === activePlayer) {
-          // console.log("piece player is active player")
-          setSelectedPiece(piece);
-        } 
+    let out = false;
+    legalMoves.forEach( (testSquare: Array<Number>) => {
+      if (square[0] === testSquare[0] && square[1] === testSquare[1]) {
+        console.log("Legal Move:", testSquare)
+        out = true;
       }
-    } else {
-      // TODO: if this square is a legal move for the selectedPiece to move to, then do the move.
-      if (selectedPiece != null) {
-        selectedPiece.setPosition(row, col);
-        changeTurn();
-      } else {
-        setSelectedPiece(undefined);
-      }
-    }
+    })
 
+    return out;
   }
 
-  // Game logic
-  function isPiecePresent(row: number, col: number) {
-    let out = undefined
-    game.getGameState().forEach((piece: Piece) => {
-      if (piece.getRow() === row 
-        && piece.getCol() === col) {
-          out = piece;
-      } 
-    })
-    return out;
+  const handleClick = (rank: number, file: number, piece?: Piece) => {
+    console.group("Click:" + [rank, file] + "|" + getNotation(rank, file));
+    console.log(game.isLegalMove());
+    if (selectedPiece && selectedPiece.getPlayer() === activePlayer && !piece && isLegalMove(rank, file)) {
+      moveSelectedPiece(rank, file);
+    } else if (piece && piece.getPlayer() === activePlayer) {
+      selectPiece(piece);
+    }
+    console.groupEnd()
+  }
+
+  const moveSelectedPiece = (rank: number, file: number) => {
+    if (selectedPiece) {
+      selectedPiece.setPosition(rank, file);
+      changeTurn();
+    }
+  }
+
+  const selectPiece = (piece: Piece) => {
+    game.setSelectedPiece(piece);
+    setSelectedPiece(piece);
+    return piece;
+  }
+
+  const isPiecePresent = (rank: number, file: number) => {
+    return game.isPiecePresent(rank, file);
   }
 
   // UI Elements
@@ -73,8 +80,8 @@ export default function BoardView({ game }: any) {
 
   // Rendering Functions
 
-  const renderSquare = (x: number, y: number, piece?: Piece) => {
-    let light = (x + y) % 2 === 0;
+  const renderSquare = (rank: number, file: number, piece?: Piece) => {
+    let light = (rank + file) % 2 === 0;
 
     let fill = light ? 'lavender' : 'mediumPurple'
     const stroke = light ? 'thistle' : 'lavender'
@@ -83,17 +90,21 @@ export default function BoardView({ game }: any) {
       fill = 'linen';
     }
   
+    if ( isLegalMove(rank, file) ) {
+      fill = 'darkGray'
+    }
+
     return (
       <div
-        key={x+y}
-        onClick={() => handleClick(x, y, piece)}
+        key={rank+file}
+        onClick={() => handleClick(rank, file, piece)}
         className={styles.square}
         style={{
           backgroundColor: fill,
           color: stroke,
         }}
       >
-        {piece != null && 
+        {piece && 
           <div 
             className={styles.piece}
             style={{
@@ -116,16 +127,16 @@ export default function BoardView({ game }: any) {
     let rows = [];
 
     // Render all the squares
-    for (let row = 0; row < 8; row++) {
+    for (let rank = 0; rank < 8; rank++) {
       let boardRow = [];
-      for (let col = 0; col < 8; col++) {
-        let piece = isPiecePresent(row, col);
-        boardRow.push(renderSquare(row, col, piece));
+      for (let file = 0; file < 8; file++) {
+        let piece = isPiecePresent(rank, file);
+        boardRow.push(renderSquare(rank, file, piece));
       }
       rows.push(boardRow);
     }
 
-    if (playerPerspective === 2) {
+    if (playerPerspective === 1) {
       rows.reverse();
     } else {
       rows = rows.map(row => {
@@ -158,11 +169,11 @@ export default function BoardView({ game }: any) {
 }
 
 // Converts the simple integers x and y to chess coordinates
-function getCoordinate(x: number, y: number) {
-  return (intToAlpha(x) + "" + (y + 1))
+function getNotation(rank: number, file: number) {
+  return (intToAlpha(file) + "" + (rank + 1))
 }
 
+// Converts an int to a char based on its position in the alphabet
 function intToAlpha(val: number) {
   return (val + 10).toString(36);
 }
-

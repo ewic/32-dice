@@ -37,3 +37,36 @@ This app was created with Create React App, with the Typescript template. The st
 * Click on a piece to select it.
 * Highlight legal moves when a piece is selected
 * Detect for checkmate.
+
+# Game logic notes
+
+## Determining a legal move
+
+Take a pieces position and its value. A legal move is any move orthogonaly or diagonally equal to the value, no more and no less.
+
+Generally, a piece of value i located at [x,y] will have the following legal moves on an infinitely large board with no blockers:
+
+* [ x + i, y ]
+* [ x - i, y ]
+* [ x, y + i ]
+* [ x, y - i ]
+* [ x + i, y + i ]
+* [ x + i, y - i ]
+* [ x - i, y + i ]
+* [ x - i, y - i ]
+
+If any of these values are greater than 7 or less than 0, then that is not actually a legal move.
+
+## Detecting for blocks
+
+If a piece exists in between the selected piece and a legal square then the move is not legal.
+
+Calculating rays? 
+
+For a selected square and all its legal moves, check every space between it and the destination square for the presence of a piece?
+
+If a piece exists, then the destination is not legal.
+
+## Detecting for checkmate
+
+TODO

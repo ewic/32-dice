@@ -1,3 +1,5 @@
+import { validateHeaderValue } from "http";
+import { forEachChild, OutputFileType } from "typescript";
 import { Board } from "./Board";
 import Piece from "./Piece";
 
@@ -20,21 +22,21 @@ export default class Game {
             let value = Math.floor(Math.random() * 6) + 1;
             
             // TODO: Make this more elegant
-            let px = 0;
+            let rank = 0;
             if (i > 23) {
-                px = 7;
+                rank = 7;
             } else if (i > 15) {
-                px = 6; 
+                rank = 6; 
             } else if (i > 7) {
-                px = 1;
+                rank = 1;
             }
             
-            let py = i % 8;
+            let file = i % 8;
             
-            let isBlack = false;
-            if (i < 16) isBlack = true;
+            let isPlayer2 = true;
+            if (i < 16) isPlayer2 = false;
             
-            let newPiece = new Piece(isBlack, value, [px, py]);
+            let newPiece = new Piece(isPlayer2, value, [rank, file]);
 
             pieces.push(newPiece);
         }
@@ -45,8 +47,77 @@ export default class Game {
         return this;
     }
 
+    isLegalMove(): boolean {
+        return true;
+    }
+
+    isPiecePresent(rank: number, file: number) {
+        let out = undefined
+        this.gameState.forEach((piece: Piece) => {
+          if (piece.getRank() === rank 
+            && piece.getFile() === file) {
+              out = piece;
+          } 
+        });
+        return out;
+    }
+
     getGameState() {
         return this.gameState;
+    }
+
+    setSelectedPiece(piece: Piece) {
+        this.selectedPiece = piece;
+    }
+
+    movePiece(rank: number, file: number) {
+        this.selectedPiece?.setPosition(rank, file);
+    }
+
+    getLegalMoves(): number[][] {
+        if (this.selectedPiece === undefined) return [];
+
+        const piece = this.selectedPiece;
+        const rank = piece.getRank();
+        const file = piece.getFile();
+        const value = piece.getValue();
+        let out: number[][] = piece.getMoves();
+
+        // Detect for blocks
+        let north: number[][] = [];
+        let south: number[][] = [];
+        let east: number[][] = [];
+        let west: number[][] = [];
+        let northeast: number[][] = [];
+        let southeast: number[][] = [];
+        let northwest: number[][] = [];
+        let southwest: number[][] = [];
+
+        for (let i = 0; i<value; i++) {
+            north.push([rank+i, file])
+            south.push([rank-i, file])
+            east.push([rank, file+i])
+            west.push([rank, file-i])
+            northeast.push([rank+i, file+i])
+            southeast.push([rank-i, file+i])
+            northwest.push([rank+i, file-i])
+            southwest.push([rank-i, file-i])
+        }
+
+        let rays = [north, south, east, west, northeast, southeast, northeast, southwest]
+
+        rays.forEach((direction) => {
+            let blocked = false;
+            direction.forEach((square: number[]) => {
+                if (!blocked || !this.isPiecePresent(square[0], square[1])) {
+                    
+                } else {
+                    blocked = true;
+                }
+            })
+        })
+
+        return out;
     }
 
 }
