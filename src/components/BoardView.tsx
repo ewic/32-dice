@@ -8,18 +8,18 @@ export default function BoardView({ game }: any) {
   const [size, setSize] = useState(600);
   const [activePlayer, setActivePlayer] = useState<Number>(1);
   const [selectedPiece, setSelectedPiece] = useState<Piece>();
+  const [legalMoves, setLegalMoves] = useState<number[][]>([])
   const [capturedPieces, setCapturedPieces] = useState<Array<Piece>>([]);
 
   const changeTurn = () => {
     if (activePlayer === 1) setActivePlayer(2)
     else setActivePlayer(1);
     game.setSelectedPiece(undefined);
-    setSelectedPiece(undefined);
+    selectPiece(undefined);
   }
 
-  const isLegalMove = (rank: number, file: number) => {
+  const isLegalMove = (rank: number, file: number): boolean => {
     const square = [rank, file]
-    const legalMoves = game.getLegalMoves();
 
     let out = false;
     legalMoves.forEach( (testSquare: Array<Number>) => {
@@ -50,14 +50,15 @@ export default function BoardView({ game }: any) {
     }
   }
 
-  const selectPiece = (piece: Piece) => {
+  const selectPiece = (piece?: Piece) => {
     game.setSelectedPiece(piece);
     setSelectedPiece(piece);
+    setLegalMoves(game.getLegalMoves())
     return piece;
   }
 
   const isPiecePresent = (rank: number, file: number) => {
-    return game.isPiecePresent(rank, file);
+    return game.isPiecePresent([rank, file]);
   }
 
   // UI Elements

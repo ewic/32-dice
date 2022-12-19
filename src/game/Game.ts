@@ -17,30 +17,30 @@ export default class Game {
     createNewGame() {
         // Generate a new gameState
         //   A gameState is an array of pieces and coordinates (subject to change)
-        let pieces = [];
+        let pieces: Array<Piece> = [];
         for (let i = 0; i < 32; i++) {
+            // Randomly determine the value, between 1 and 6.
             let value = Math.floor(Math.random() * 6) + 1;
             
-            // TODO: Make this more elegant
+            // Split the pieces, 8 pieces on rank 0, 8 on rank 1, 8 on rank 6 and 8 on rank 7
             let rank = 0;
-            if (i > 23) {
-                rank = 7;
-            } else if (i > 15) {
-                rank = 6; 
-            } else if (i > 7) {
-                rank = 1;
-            }
-            
+            if (i > 23) { rank = 7; } 
+            else if (i > 15) { rank = 6; } 
+            else if (i > 7) { rank = 1; }
+
             let file = i % 8;
-            
+    
+            // First half of the pieces are player1, second half are player2
             let isPlayer2 = true;
             if (i < 16) isPlayer2 = false;
             
-            let newPiece = new Piece(isPlayer2, value, [rank, file]);
-
-            pieces.push(newPiece);
+            pieces.push(new Piece(isPlayer2, value, [rank, file]));
         }
         
+        pieces.push(new Piece(false, 2, [5,7]))
+        pieces.push(new Piece(false, 3, [5,5]))
+        pieces.push(new Piece(true, 2, [5,2]))
+
         this.gameState = pieces;
         this.gameBoard = new Board(pieces);
         
@@ -51,11 +51,15 @@ export default class Game {
         return true;
     }
 
-    isPiecePresent(rank: number, file: number) {
+    capturePiece() {
+        
+    }
+
+    isPiecePresent(square: number[]) {
         let out = undefined
         this.gameState.forEach((piece: Piece) => {
-          if (piece.getRank() === rank 
-            && piece.getFile() === file) {
+          if (piece.getRank() === square[0]
+            && piece.getFile() === square[1]) {
               out = piece;
           } 
         });
@@ -81,7 +85,19 @@ export default class Game {
         const rank = piece.getRank();
         const file = piece.getFile();
         const value = piece.getValue();
-        let out: number[][] = piece.getMoves();
+        let out: number[][] = [];
+
+        // Determine all legal moves
+
+        // If the move falls out of the bounds of the board, then do not add it.
+        out.push([rank + value, file]); // North
+        out.push([rank - value, file]); // South
+        out.push([rank, file + value]); // East
+        out.push([rank, file - value]); // West
+        out.push([rank + value, file + value]); // NE
+        out.push([rank + value, file - value]); // SE
+        out.push([rank - value, file + value]); // NW
+        out.push([rank - value, file - value]); // SW
 
         // Detect for blocks
         let north: number[][] = [];
@@ -93,7 +109,8 @@ export default class Game {
         let northwest: number[][] = [];
         let southwest: number[][] = [];
 
-        for (let i = 0; i<value; i++) {
+        // Generate the squares to test.
+        for (let i = 1; i<=value; i++) {
             north.push([rank+i, file])
             south.push([rank-i, file])
             east.push([rank, file+i])
@@ -106,13 +123,11 @@ export default class Game {
 
         let rays = [north, south, east, west, northeast, southeast, northeast, southwest]
 
-        rays.forEach((direction) => {
-            let blocked = false;
+        rays.forEach((direction, index) => {
             direction.forEach((square: number[]) => {
-                if (!blocked || !this.isPiecePresent(square[0], square[1])) {
-                    
-                } else {
-                    blocked = true;
+                // A collision occurs if a piece is encountered while scanning the ray.
+                if (this.isPiecePresent(square) && piece.getPlayer() === this.selectedPiece?.getPlayer()) {
+                    out[index] = [];
                 }
             })
         })

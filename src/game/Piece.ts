@@ -49,24 +49,4 @@ export default class Piece {
         return this.position[1];
     }
 
-    getMoves() {
-        // Given its value and position, determine all the possible squares this piece can move to.
-        const position = this.getPosition();
-        const value = this.getValue();
-        const rank = position[0];
-        const file = position[1];
-
-        let out: number[][] = [];
-        if (rank + value < 8 ) out.push([rank + value, file]); // North
-        if (rank - value > 0 ) out.push([rank - value, file]); // South
-        if (file + value < 8 ) out.push([rank, file + value]); // East
-        if (file - value > 0 )out.push([rank, file - value]); // West
-        if (rank + value < 8 && file + value < 8 ) out.push([rank + value, file + value]); // NE
-        if (rank + value < 8 && file - value > 0 ) out.push([rank + value, file - value]); // SE
-        if (rank - value > 0 && file + value < 8 ) out.push([rank - value, file + value]); // NW
-        if (rank - value > 0 && file - value > 0 ) out.push([rank - value, file - value]); // SW
-
-        return out;
-    }
-
 }
