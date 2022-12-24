@@ -1,9 +1,9 @@
 export default class Piece {
     isPlayer2: boolean;
     value: number;
-    position: Array<number>;
+    position: number[];
 
-    constructor(isPlayer2:boolean, value: number, position: Array<number>) {
+    constructor(isPlayer2:boolean, value: number, position: number[]) {
         this.isPlayer2 = isPlayer2;
         this.value = value; 
         this.position = position;
@@ -28,6 +28,17 @@ export default class Piece {
         return this.value;
     }
 
+    getPossibleValuesToChangeTo(): number[] {
+        let choices = [];
+        // Remove 2 choices: the current value of the piece and 7 minus the current value.
+        for ( let i = 1; i < 7; i++ ) {
+            if ( i !== this.value && i !== (7 - this.value ) ) {
+                choices.push(i);   
+            }
+        }
+        return choices;
+    }
+
     getPlayer(): number {
         if (this.isPlayer2) return 2;
         else return 1
@@ -37,8 +48,8 @@ export default class Piece {
         return this.position;    
     }
 
-    setPosition(toX: number, toY: number): number[] {
-        return this.position = [toX, toY];
+    setPosition(square: number[]): number[] {
+        return this.position = [square[0], square[1]];
     }
 
     getRank() {

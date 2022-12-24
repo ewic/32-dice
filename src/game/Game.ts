@@ -1,13 +1,17 @@
-import { validateHeaderValue } from "http";
-import { forEachChild, OutputFileType } from "typescript";
 import { Board } from "./Board";
 import Piece from "./Piece";
 
-let observer: any = null;
+interface GameState {
+    pieces: Array<Piece>,
+    activePlayer: number // Either 1 or 2
+}
 
 export default class Game {
     gameBoard: Board = new Board();
-    gameState: Array<Piece> = [];
+    gameState: GameState = {
+        pieces: [],
+        activePlayer: 1
+    };
     selectedPiece?: Piece;
     
     constructor() {
@@ -39,9 +43,12 @@ export default class Game {
         
         pieces.push(new Piece(false, 2, [5,7]))
         pieces.push(new Piece(false, 3, [5,5]))
-        pieces.push(new Piece(true, 2, [5,2]))
+        pieces.push(new Piece(false, 1, [4,4]))
+        pieces.push(new Piece(false, 3, [5,6]))
+        pieces.push(new Piece(true, 2, [3,4]))
+        pieces.push(new Piece(true, 2, [2,2]))
 
-        this.gameState = pieces;
+        this.gameState.pieces = pieces;
         this.gameBoard = new Board(pieces);
         
         return this;
@@ -51,18 +58,27 @@ export default class Game {
         return true;
     }
 
-    capturePiece() {
-        
+    capturePiece(capturedPiece: Piece) {
+        let pieces = this.gameState.pieces;
+        // Remove the piece from the set of pieces
+        pieces.forEach((piece: Piece, index: number) => {
+            if (piece === capturedPiece) {
+                pieces.splice(index, 1);
+            }
+        });
     }
 
-    isPiecePresent(square: number[]) {
-        let out = undefined
-        this.gameState.forEach((piece: Piece) => {
+    isPiecePresent(square: number[]): Piece | undefined {
+        const pieces = this.gameState.pieces;
+        let out = undefined;
+
+        pieces.forEach((piece: Piece) => {
           if (piece.getRank() === square[0]
             && piece.getFile() === square[1]) {
               out = piece;
           } 
         });
+
         return out;
     }
 
@@ -70,21 +86,37 @@ export default class Game {
         return this.gameState;
     }
 
-    setSelectedPiece(piece: Piece) {
-        this.selectedPiece = piece;
+    getActivePlayer(): number {
+        return this.gameState.activePlayer;
     }
 
-    movePiece(rank: number, file: number) {
-        this.selectedPiece?.setPosition(rank, file);
+    toggleActivePlayer() {
+        if (this.gameState.activePlayer === 1) this.gameState.activePlayer = 2;
+        else this.gameState.activePlayer = 1;
+    }
+
+    setActivePlayer(player: number): number | void {
+        if (player === 1 || player === 2) {
+            this.gameState.activePlayer = player;
+            return player;
+        } else return;
+    }
+
+    setSelectedPiece(piece: Piece): Piece {
+        this.selectedPiece = piece;
+        return piece;
+    }
+
+    movePiece(square: number[]) {
+        this.selectedPiece?.setPosition(square);
     }
 
     getLegalMoves(): number[][] {
         if (this.selectedPiece === undefined) return [];
 
-        const piece = this.selectedPiece;
-        const rank = piece.getRank();
-        const file = piece.getFile();
-        const value = piece.getValue();
+        const rank = this.selectedPiece.getRank();
+        const file = this.selectedPiece.getFile();
+        const value = this.selectedPiece.getValue();
         let out: number[][] = [];
 
         // Determine all legal moves
@@ -95,8 +127,8 @@ export default class Game {
         out.push([rank, file + value]); // East
         out.push([rank, file - value]); // West
         out.push([rank + value, file + value]); // NE
-        out.push([rank + value, file - value]); // SE
-        out.push([rank - value, file + value]); // NW
+        out.push([rank - value, file + value]); // SE
+        out.push([rank + value, file - value]); // NW
         out.push([rank - value, file - value]); // SW
 
         // Detect for blocks
@@ -111,23 +143,32 @@ export default class Game {
 
         // Generate the squares to test.
         for (let i = 1; i<=value; i++) {
-            north.push([rank+i, file])
-            south.push([rank-i, file])
-            east.push([rank, file+i])
-            west.push([rank, file-i])
-            northeast.push([rank+i, file+i])
-            southeast.push([rank-i, file+i])
-            northwest.push([rank+i, file-i])
-            southwest.push([rank-i, file-i])
+            north.push([rank + i, file])
+            south.push([rank - i, file])
+            east.push([rank, file + i])
+            west.push([rank, file - i])
+            northeast.push([rank + i, file + i])
+            southeast.push([rank - i, file + i])
+            northwest.push([rank + i, file - i])
+            southwest.push([rank - i, file - i])
         }
 
-        let rays = [north, south, east, west, northeast, southeast, northeast, southwest]
+        let rays = [north, south, east, west, northeast, southeast, northwest, southwest]
 
-        rays.forEach((direction, index) => {
-            direction.forEach((square: number[]) => {
-                // A collision occurs if a piece is encountered while scanning the ray.
-                if (this.isPiecePresent(square) && piece.getPlayer() === this.selectedPiece?.getPlayer()) {
-                    out[index] = [];
+        rays.forEach((ray, rayIndex) => {
+            console.log(ray.length);
+            ray.forEach((square: number[], index) => {
+                let squarePiece = this.isPiecePresent(square);
+                
+                if (squarePiece) {
+
+                }
+
+                // Are we testing the last entry in the ray?
+                if (ray.length === index+1) {
+                    console.log("testing last entry, rayIndex:", rayIndex);
+                } else {
+                    out[rayIndex] = [];
                 }
             })
         })
@@ -135,21 +176,4 @@ export default class Game {
         return out;
     }
 
-}
-
-function emitChange() {
-    observer();
-}
-
-export function observe(o: any) {
-    if (observer) {
-        throw new Error ('Multiple observers are not implemented');
-    }
-
-    observer = o;
-    emitChange();
-}
-
-export function getSelectedPiece() {
-    // return selectedPiece;
 }

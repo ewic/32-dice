@@ -18,13 +18,10 @@ export default function BoardView({ game }: any) {
     selectPiece(undefined);
   }
 
-  const isLegalMove = (rank: number, file: number): boolean => {
-    const square = [rank, file]
-
+  const isLegalMove = (square: number[]): boolean => {
     let out = false;
     legalMoves.forEach( (testSquare: Array<Number>) => {
       if (square[0] === testSquare[0] && square[1] === testSquare[1]) {
-        console.log("Legal Move:", testSquare)
         out = true;
       }
     })
@@ -32,20 +29,26 @@ export default function BoardView({ game }: any) {
     return out;
   }
 
-  const handleClick = (rank: number, file: number, piece?: Piece) => {
-    console.group("Click:" + [rank, file] + "|" + getNotation(rank, file));
-    console.log(game.isLegalMove());
-    if (selectedPiece && selectedPiece.getPlayer() === activePlayer && !piece && isLegalMove(rank, file)) {
-      moveSelectedPiece(rank, file);
-    } else if (piece && piece.getPlayer() === activePlayer) {
-      selectPiece(piece);
-    }
-    console.groupEnd()
+  const capturePiece = (piece: Piece) => {
+    console.log("Capturing piece:", piece.getPosition())
+    game.capturePiece(piece);
   }
 
-  const moveSelectedPiece = (rank: number, file: number) => {
+  const handleClick = (square: number[], piece?: Piece) => {
+    console.group("Click Event");
+    console.log("Click Target:", square)
+    if (selectedPiece && isLegalMove(square)) {
+      if (piece) capturePiece(piece);
+      moveSelectedPiece(square);
+    } else if (piece) {
+        if (activePlayer === piece.getPlayer()) selectPiece(piece);
+    } 
+    console.groupEnd();
+  }
+
+  const moveSelectedPiece = (square: number[]) => {
     if (selectedPiece) {
-      selectedPiece.setPosition(rank, file);
+      selectedPiece.setPosition(square);
       changeTurn();
     }
   }
@@ -59,6 +62,11 @@ export default function BoardView({ game }: any) {
 
   const isPiecePresent = (rank: number, file: number) => {
     return game.isPiecePresent([rank, file]);
+  }
+
+  const changeValue = (value: number) => {
+    selectedPiece?.setValue(value);
+    changeTurn();
   }
 
   // UI Elements
@@ -91,22 +99,28 @@ export default function BoardView({ game }: any) {
       fill = 'linen';
     }
   
-    if ( isLegalMove(rank, file) ) {
+    if ( isLegalMove([rank, file]) ) {
       fill = 'darkGray'
     }
 
     return (
       <div
         key={rank+file}
-        onClick={() => handleClick(rank, file, piece)}
+        onClick={() => handleClick([rank, file], piece)}
         className={styles.square}
         style={{
           backgroundColor: fill,
           color: stroke,
         }}
       >
-        {piece && 
-          <div 
+        {piece && renderPiece(piece)}
+      </div>
+    )
+  }
+
+  const renderPiece = (piece: Piece) => {
+    return (
+      <div 
             className={styles.piece}
             style={{
               width: "30px",
@@ -118,8 +132,6 @@ export default function BoardView({ game }: any) {
           >
             {piece.getValue()}
           </div>
-        }
-      </div>
     )
   }
 
@@ -148,22 +160,42 @@ export default function BoardView({ game }: any) {
     return rows;
   }
 
+  const getValueChoices = () => {
+    let choices: number[] = [];
+    if (selectedPiece) {
+      choices = selectedPiece.getPossibleValuesToChangeTo();
+    }
+
+    return choices 
+  }
+
   return(
-    <div className="main">
-      <div className="userinterface">
-        <button onClick={() => increaseSize()}>+</button>
-        <button onClick={() => resetSize()}>&#8634;</button>
-        <button onClick={() => decreaseSize()}>-</button>
-        <br />
-        <span>Perspective: Player {String(playerPerspective)}</span>
-        <button onClick={() => flipBoard()}>Flip</button>
+    <div className={styles.main}>
+      <div className={styles.game}>
+        <div className={styles.viewControls}>
+          <button onClick={() => increaseSize()}>+</button>
+          <button onClick={() => resetSize()}>&#8634;</button>
+          <button onClick={() => decreaseSize()}>-</button>
+          <br />
+          <span>Perspective: Player {String(playerPerspective)}</span>
+          <button onClick={() => flipBoard()}>Flip</button>
+        </div>
+        <div className= {styles.board}
+          style={{
+            width: size + 'px',
+            height: size + 'px'
+          }}>
+          {renderBoard()}
+        </div>
       </div>
-      <div className={styles.board}
-        style={{
-          width: size + 'px',
-          height: size + 'px'
-        }}>
-      {renderBoard()}
+      <div className={styles.ui}>
+        <h3>Change Value</h3>
+        <ul>
+          {getValueChoices().map( (choice:number ) => {
+            let piece = new Piece(activePlayer === 2, choice, [0,0])
+            return <li key={choice}><a onClick={() => changeValue(choice)}>{renderPiece(piece)}</a></li>
+          })}
+        </ul>
       </div>
     </div>
   )

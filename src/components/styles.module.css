@@ -1,8 +1,21 @@
+.main {
+  display: flex;
+}
+
+.game {
+  flex: 2;
+}
+
+.ui {
+  flex: 1;
+}
+
 .board {
+    flex: 4;
     display: flex;
     flex-wrap: wrap;
     border: 2px solid black;
-  }
+}
 
 .square {
   display: flex;
@@ -27,4 +40,20 @@
   position: "absolute";
   height: 12.5%;
   width: 12.5%;
+}
+
+.ui ul > li {
+  display: inline-block;
+  margin: 2px;
+  padding: 8px;
+  border: 2px solid black;
+
+}
+
+.ui ul > li:hover {
+  background-color: #888
+}
+
+.valueChange li a:hover {
+  background-color: lightgrey;
 }
