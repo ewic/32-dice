@@ -1,6 +1,7 @@
 import { Board } from "./Board";
 import Piece from "./Piece";
 
+
 interface GameState {
     pieces: Array<Piece>,
     activePlayer: number // Either 1 or 2
@@ -12,6 +13,7 @@ export default class Game {
         pieces: [],
         activePlayer: 1
     };
+    history: any[] = [];
     selectedPiece?: Piece;
     
     constructor() {
@@ -22,32 +24,30 @@ export default class Game {
         // Generate a new gameState
         //   A gameState is an array of pieces and coordinates (subject to change)
         let pieces: Array<Piece> = [];
-        for (let i = 0; i < 32; i++) {
-            // Randomly determine the value, between 1 and 6.
-            let value = Math.floor(Math.random() * 6) + 1;
+        // for (let i = 0; i < 32; i++) {
+        //     // Randomly determine the value, between 1 and 6.
+        //     let value = Math.floor(Math.random() * 6) + 1;
             
-            // Split the pieces, 8 pieces on rank 0, 8 on rank 1, 8 on rank 6 and 8 on rank 7
-            let rank = 0;
-            if (i > 23) { rank = 7; } 
-            else if (i > 15) { rank = 6; } 
-            else if (i > 7) { rank = 1; }
+        //     // Split the pieces, 8 pieces on rank 0, 8 on rank 1, 8 on rank 6 and 8 on rank 7
+        //     let rank = 0;
+        //     if (i > 23) { rank = 7; } 
+        //     else if (i > 15) { rank = 6; } 
+        //     else if (i > 7) { rank = 1; }
 
-            let file = i % 8;
+        //     let file = i % 8;
     
-            // First half of the pieces are player1, second half are player2
-            let isPlayer2 = true;
-            if (i < 16) isPlayer2 = false;
+        //     // First half of the pieces are player1, second half are player2
+        //     let isPlayer2 = true;
+        //     if (i < 16) isPlayer2 = false;
             
-            pieces.push(new Piece(isPlayer2, value, [rank, file]));
-        }
-        
-        pieces.push(new Piece(false, 2, [5,7]))
-        pieces.push(new Piece(false, 3, [5,5]))
-        pieces.push(new Piece(false, 1, [4,4]))
-        pieces.push(new Piece(false, 3, [5,6]))
-        pieces.push(new Piece(true, 2, [3,4]))
-        pieces.push(new Piece(true, 2, [2,2]))
+        //     pieces.push(new Piece(isPlayer2, value, [rank, file]));
+        // }
 
+        pieces.push(new Piece(false, 1, [7,7]));
+        pieces.push(new Piece(false, 1, [7,1]));
+        pieces.push(new Piece(true, 1, [1,0]));
+        pieces.push(new Piece(true, 1, [0,0]));
+        
         this.gameState.pieces = pieces;
         this.gameBoard = new Board(pieces);
         
@@ -68,7 +68,7 @@ export default class Game {
         });
     }
 
-    isPiecePresent(square: number[]): Piece | undefined {
+    getPiece(square: number[]): Piece | undefined {
         const pieces = this.gameState.pieces;
         let out = undefined;
 
@@ -111,6 +111,26 @@ export default class Game {
         this.selectedPiece?.setPosition(square);
     }
 
+    isCheckmate(): boolean {
+        const activePlayer = this.gameState.activePlayer
+        // Determine the rank to test
+        // If p1 is active, rank = 7, else rank = 0
+        const testRank = activePlayer === 1 ? 7 : 0; 
+        const position = this.selectedPiece?.getPosition()
+
+        if (position && position[0] !== testRank) {
+            console.log("Didn't move to back rank");
+            return false;
+        } 
+
+        // If we did move to the back rank, test to see if we can be captured
+        if (activePlayer === 1) {
+            // rays to test are east west south se sw
+        }
+
+        return false;
+    }
+
     getLegalMoves(): number[][] {
         if (this.selectedPiece === undefined) return [];
 
@@ -121,17 +141,6 @@ export default class Game {
 
         // Determine all legal moves
 
-        // If the move falls out of the bounds of the board, then do not add it.
-        out.push([rank + value, file]); // North
-        out.push([rank - value, file]); // South
-        out.push([rank, file + value]); // East
-        out.push([rank, file - value]); // West
-        out.push([rank + value, file + value]); // NE
-        out.push([rank - value, file + value]); // SE
-        out.push([rank + value, file - value]); // NW
-        out.push([rank - value, file - value]); // SW
-
-        // Detect for blocks
         let north: number[][] = [];
         let south: number[][] = [];
         let east: number[][] = [];
@@ -155,23 +164,31 @@ export default class Game {
 
         let rays = [north, south, east, west, northeast, southeast, northwest, southwest]
 
-        rays.forEach((ray, rayIndex) => {
-            console.log(ray.length);
-            ray.forEach((square: number[], index) => {
-                let squarePiece = this.isPiecePresent(square);
-                
-                if (squarePiece) {
-
+        rays.forEach((ray) => {
+            let blocked = false;
+            // Test each ray to determine if it is blocked.
+            for (let i = 0; i < value; i++) {
+                let piece = this.getPiece(ray[i]);
+                // If we encounter a piece...
+                if (piece) {
+                    // If we are at the end of the ray, determine if the piece is of the opposing player, then it can be captured.
+                    if (i === value - 1) {
+                        if (piece.getPlayer() === this.selectedPiece?.getPlayer()) {
+                            blocked = true;
+                            break;
+                        } 
+                    } else {
+                        blocked = true;
+                        break;
+                    }
                 }
-
-                // Are we testing the last entry in the ray?
-                if (ray.length === index+1) {
-                    console.log("testing last entry, rayIndex:", rayIndex);
-                } else {
-                    out[rayIndex] = [];
-                }
-            })
-        })
+            }
+            // If we do not encounter a piece or we only encountered a piece of the opposing player
+            //   on the last square in the ray, then we are not blocked.
+            if (!blocked) {
+                out.push(ray[ray.length - 1]);
+            }
+        });
 
         return out;
     }

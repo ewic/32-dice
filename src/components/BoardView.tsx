@@ -35,21 +35,26 @@ export default function BoardView({ game }: any) {
   }
 
   const handleClick = (square: number[], piece?: Piece) => {
-    console.group("Click Event");
-    console.log("Click Target:", square)
+    // console.group("Click Event");
+    // console.log("Click Target:", square)
     if (selectedPiece && isLegalMove(square)) {
       if (piece) capturePiece(piece);
       moveSelectedPiece(square);
     } else if (piece) {
         if (activePlayer === piece.getPlayer()) selectPiece(piece);
     } 
-    console.groupEnd();
+    // console.groupEnd();
   }
 
   const moveSelectedPiece = (square: number[]) => {
     if (selectedPiece) {
       selectedPiece.setPosition(square);
-      changeTurn();
+      if (game.isCheckmate()) {
+        // End the game.
+        console.log("ENDGAME");
+      } else {
+        changeTurn();
+      }
     }
   }
 
@@ -60,8 +65,8 @@ export default function BoardView({ game }: any) {
     return piece;
   }
 
-  const isPiecePresent = (rank: number, file: number) => {
-    return game.isPiecePresent([rank, file]);
+  const getPiece = (rank: number, file: number) => {
+    return game.getPiece([rank, file]);
   }
 
   const changeValue = (value: number) => {
@@ -143,7 +148,7 @@ export default function BoardView({ game }: any) {
     for (let rank = 0; rank < 8; rank++) {
       let boardRow = [];
       for (let file = 0; file < 8; file++) {
-        let piece = isPiecePresent(rank, file);
+        let piece = getPiece(rank, file);
         boardRow.push(renderSquare(rank, file, piece));
       }
       rows.push(boardRow);
