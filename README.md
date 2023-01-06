@@ -1,7 +1,7 @@
 
 # 32Dice
 
-Based on the game 32Dice originally published by (https://www.universitygames.com)[University Games].
+Based on the game 32Dice originally published by [University Games](https://www.universitygames.com).
 
 # Rules
 
