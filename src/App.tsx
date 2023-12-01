@@ -2,7 +2,7 @@ import Game from "./game/Game";
 import BoardView from "./components/BoardView";
 
 import './styles.css';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Instructions } from "./components/Instructions";
 
 export default function App() {
