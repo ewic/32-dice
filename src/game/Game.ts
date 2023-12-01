@@ -24,29 +24,29 @@ export default class Game {
         // Generate a new gameState
         //   A gameState is an array of pieces and coordinates (subject to change)
         let pieces: Array<Piece> = [];
-        // for (let i = 0; i < 32; i++) {
-        //     // Randomly determine the value, between 1 and 6.
-        //     let value = Math.floor(Math.random() * 6) + 1;
+        for (let i = 0; i < 32; i++) {
+            // Randomly determine the value, between 1 and 6.
+            let value = Math.floor(Math.random() * 6) + 1;
             
-        //     // Split the pieces, 8 pieces on rank 0, 8 on rank 1, 8 on rank 6 and 8 on rank 7
-        //     let rank = 0;
-        //     if (i > 23) { rank = 7; } 
-        //     else if (i > 15) { rank = 6; } 
-        //     else if (i > 7) { rank = 1; }
+            // Split the pieces, 8 pieces on rank 0, 8 on rank 1, 8 on rank 6 and 8 on rank 7
+            let rank = 0;
+            if (i > 23) { rank = 7; } 
+            else if (i > 15) { rank = 6; } 
+            else if (i > 7) { rank = 1; }
 
-        //     let file = i % 8;
+            let file = i % 8;
     
-        //     // First half of the pieces are player1, second half are player2
-        //     let isPlayer2 = true;
-        //     if (i < 16) isPlayer2 = false;
+            // First half of the pieces are player1, second half are player2
+            let isPlayer2 = true;
+            if (i < 16) isPlayer2 = false;
             
-        //     pieces.push(new Piece(isPlayer2, value, [rank, file]));
-        // }
+            pieces.push(new Piece(isPlayer2, value, [rank, file]));
+        }
 
-        pieces.push(new Piece(false, 1, [7,7]));
-        pieces.push(new Piece(false, 1, [7,1]));
-        pieces.push(new Piece(true, 1, [1,0]));
-        pieces.push(new Piece(true, 1, [0,0]));
+        // pieces.push(new Piece(false, 1, [7,7]));
+        // pieces.push(new Piece(false, 1, [7,1]));
+        // pieces.push(new Piece(true, 1, [1,0]));
+        // pieces.push(new Piece(true, 1, [0,0]));
         
         this.gameState.pieces = pieces;
         this.gameBoard = new Board(pieces);
