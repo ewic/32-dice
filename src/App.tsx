@@ -2,27 +2,28 @@ import Game from "./game/Game";
 import BoardView from "./components/BoardView";
 
 import './styles.css';
-
-const createNewGame = () => {
-    const newGame = new Game();
-    newGame.createNewGame();
-    return newGame;
-};
+import { useEffect, useState } from "react";
+import { Instructions } from "./components/Instructions";
 
 export default function App() {
-    var game = createNewGame();
+
+    const [game, setGame] = useState<any>(new Game());
+    const [context, setContext] = useState<string>('game');
 
     return (
         <div className="main">
             <div className="header">
                 <ul>
-                    <li>32Dice</li>
-                    <li>Play</li>
-                    <li>Instructions</li>
+                    <li onClick={() => setContext('game')}>32Dice</li>
+                    <li onClick={() => setGame(new Game())}>Reset</li>
+                    <li onClick={() => setContext('instructions')}>Instructions</li>
                 </ul>
             </div>
-            <div className="game">
+            <div className="game" style={{display: context=="game" ? "block" : "none"}}>
                 <BoardView game={game} />
+            </div>
+            <div className="instructions" style={{display: context=="instructions" ? "block" : "none"}}>
+                <Instructions />
             </div>
         </div>
 
